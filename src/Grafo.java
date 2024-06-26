@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,6 +16,7 @@ public class Grafo {
   private Set<String> vertices;
   private List<Aresta> arestas;
   private Map<String, List<String>> adjacencia;
+
 
   /**
    * Construtor para inicializar o grafo com vértices e arestas.
@@ -335,6 +337,165 @@ public class Grafo {
 
     return true;
 }
+public List<List<String>> getComponentesConexas() {
+  List<List<String>> componentes = new ArrayList<>();
+  Set<String> visitados = new HashSet<>();
+
+  for (String vertice : vertices) {
+      if (!visitados.contains(vertice)) {
+          List<String> componente = new ArrayList<>();
+          DFS(vertice, visitados, componente);
+          componentes.add(componente);
+      }
+  }
+
+  return componentes;
+}
+
+private void DFS(String vertice, Set<String> visitados, List<String> componente) {
+  visitados.add(vertice);
+  componente.add(vertice);
+
+  for (String vizinho : adjacencia.get(vertice)) {
+      if (!visitados.contains(vizinho)) {
+          DFS(vizinho, visitados, componente);
+      }
+  }
+}
+
+    /**
+     * Encontra um caminho euleriano no grafo.
+     *
+     * @return Lista representando o caminho euleriano, ou null se não existir.
+     */
+    public List<String> encontrarCaminhoEuleriano() {
+      // Verifica as condições para existência de caminho euleriano
+      if (!verificarCondicoesParaEuleriano()) {
+          return null;
+      }
+
+      // Encontra o vértice inicial para começar a busca
+      String inicio = encontrarVerticeInicial();
+      List<String> caminho = new ArrayList<>();
+      Stack<String> pilha = new Stack<>();
+      pilha.push(inicio);
+
+      while (!pilha.isEmpty()) {
+          String atual = pilha.peek();
+          if (!adjacencia.get(atual).isEmpty()) {
+              String proximo = adjacencia.get(atual).remove(0);
+              removerAresta(atual, proximo);
+              pilha.push(proximo);
+          } else {
+              caminho.add(pilha.pop());
+          }
+      }
+
+      // O caminho deve ser revertido para estar na ordem correta
+      Collections.reverse(caminho);
+      return caminho;
+  }
+
+  /**
+   * Verifica as condições iniciais para a existência de um caminho euleriano.
+   *
+   * @return true se o grafo satisfaz as condições para um caminho euleriano, false caso contrário.
+   */
+  private boolean verificarCondicoesParaEuleriano() {
+      int countOddDegree = 0;
+      for (String v : vertices) {
+          if (adjacencia.get(v).size() % 2 != 0) {
+              countOddDegree++;
+          }
+      }
+      return countOddDegree == 0 || countOddDegree == 2;
+  }
+
+  /**
+   * Encontra o vértice inicial para começar a busca por um caminho euleriano.
+   *
+   * @return Vértice inicial para começar a busca.
+   */
+  private String encontrarVerticeInicial() {
+      for (String v : vertices) {
+          if (adjacencia.get(v).size() % 2 != 0) {
+              return v; // Encontra um vértice de grau ímpar
+          }
+      }
+      // Se não houver vértice de grau ímpar, retorna qualquer vértice
+      return vertices.iterator().next();
+  }
+
+  /**
+   * Remove a aresta do grafo entre os vértices u e v.
+   *
+   * @param u Vértice u.
+   * @param v Vértice v.
+   */
+  private void removerAresta(String u, String v) {
+      adjacencia.get(u).remove(v);
+      adjacencia.get(v).remove(u);
+  }
+
+   /**
+     * Verifica se o grafo tem um caminho hamiltoniano e lista o caminho se existir.
+     *
+     * @return Lista representando o caminho hamiltoniano, ou null se não existir.
+     */
+    public List<String> encontrarCaminhoHamiltoniano() {
+      List<String> caminho = new ArrayList<>();
+      Set<String> visitados = new HashSet<>();
+
+      // Inicia a busca de caminho hamiltoniano a partir de cada vértice
+      for (String v : vertices) {
+          caminho.clear();
+          visitados.clear();
+          caminho.add(v);
+          visitados.add(v);
+          if (encontrarCaminhoHamiltonianoRecursivo(v, caminho, visitados)) {
+              return caminho;
+          }
+      }
+
+      return null; // Não encontrou caminho hamiltoniano
+  }
+
+  /**
+   * Função recursiva para encontrar caminho hamiltoniano.
+   *
+   * @param v         Vértice atual na busca.
+   * @param caminho   Lista que armazena o caminho hamiltoniano encontrado.
+   * @param visitados Conjunto de vértices visitados.
+   * @return true se encontrou um caminho hamiltoniano, false caso contrário.
+   */
+  private boolean encontrarCaminhoHamiltonianoRecursivo(String v, List<String> caminho, Set<String> visitados) {
+      // Caso base: se o caminho tem todos os vértices, é um caminho hamiltoniano
+      if (caminho.size() == vertices.size()) {
+          return true;
+      }
+
+      // Para todos os vizinhos não visitados de v, tenta incluir no caminho
+      for (String vizinho : adjacencia.get(v)) {
+          if (!visitados.contains(vizinho)) {
+              caminho.add(vizinho);
+              visitados.add(vizinho);
+
+              // Recursivamente tenta encontrar o caminho hamiltoniano
+              if (encontrarCaminhoHamiltonianoRecursivo(vizinho, caminho, visitados)) {
+                  return true;
+              }
+
+              // Backtrack: remove o vértice do caminho e do conjunto de visitados
+              caminho.remove(caminho.size() - 1);
+              visitados.remove(vizinho);
+          }
+      }
+
+      return false; // Não encontrou caminho hamiltoniano a partir deste vértice
+  }
+//encontrar V de articulação
+//arestas ponte
+
   public Set<String> getVertices() {
     return vertices;
   }

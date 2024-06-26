@@ -15,6 +15,10 @@ public class Main {
             System.out.println("eh hamiltoniano: " + grafo.isHamiltoniano());
             System.out.println("eh ciclico: " + grafo.isCiclico());
             System.out.println("eh planar: " + grafo.isPlanar());
+            System.out.println("componentes conexas: " + grafo.getComponentesConexas());        
+            System.out.println("caminho hamiltoniano: " + grafo.encontrarCaminhoHamiltoniano());
+            System.out.println("caminho euleriano: " + grafo.encontrarCaminhoEuleriano());
+            //System.out.println("vertices de articulacao: " + grafo.encontrarVerticesDeArticulacao());
         } catch (IOException e) {
             e.printStackTrace();
         }
