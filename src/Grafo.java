@@ -1,5 +1,12 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
 /**
  * Classe que representa um grafo com vértices e arestas.
@@ -7,6 +14,7 @@ import java.util.Set;
 public class Grafo {
   private Set<String> vertices;
   private List<Aresta> arestas;
+  private Map<String, List<String>> adjacencia;
 
   /**
    * Construtor para inicializar o grafo com vértices e arestas.
@@ -17,6 +25,8 @@ public class Grafo {
   public Grafo(Set<String> vertices, List<Aresta> arestas) {
     this.vertices = vertices;
     this.arestas = arestas;
+    this.adjacencia = new HashMap<>();
+    construirAdjacencia();
   }
 
   /**
@@ -54,8 +64,277 @@ public class Grafo {
       }
     }
     return false;
+  }    /**
+     * Verifica se o grafo é conexo.
+     *
+     * @return true se o grafo for conexo, false caso contrário.
+     */
+  public boolean isConexo() {
+      if (vertices.isEmpty()) {
+          return true; // Um grafo vazio é considerado conexo
+      }
+
+      // Mapa de adjacência
+      Map<String, Set<String>> adjList = new HashMap<>();
+      for (String vertice : vertices) {
+          adjList.put(vertice, new HashSet<>());
+      }
+      for (Aresta aresta : arestas) {
+          adjList.get(aresta.u).add(aresta.v);
+          adjList.get(aresta.v).add(aresta.u); // Considerando grafo não-direcionado
+      }
+
+      // Realiza DFS para verificar conectividade
+      Set<String> visitados = new HashSet<>();
+      Stack<String> stack = new Stack<>();
+      stack.push(vertices.iterator().next());
+
+      while (!stack.isEmpty()) {
+          String vertice = stack.pop();
+          if (!visitados.contains(vertice)) {
+              visitados.add(vertice);
+              for (String adjacente : adjList.get(vertice)) {
+                  if (!visitados.contains(adjacente)) {
+                      stack.push(adjacente);
+                  }
+              }
+          }
+      }
+
+      return visitados.size() == vertices.size();
   }
 
+    /**
+   * Verifica se o grafo é bipartido.
+   *
+   * @return true se o grafo for bipartido, false caso contrário.
+   */
+  public boolean isBipartido() {
+      if (vertices.isEmpty()) {
+          return true; // Um grafo vazio é considerado bipartido
+      }
+
+      // Mapa de adjacência
+      Map<String, Set<String>> adjList = new HashMap<>();
+      for (String vertice : vertices) {
+          adjList.put(vertice, new HashSet<>());
+      }
+      for (Aresta aresta : arestas) {
+          adjList.get(aresta.u).add(aresta.v);
+          adjList.get(aresta.v).add(aresta.u); // Considerando grafo não-direcionado
+      }
+
+      // Mapa para armazenar cores dos vértices
+      Map<String, Integer> cores = new HashMap<>();
+      for (String vertice : vertices) {
+          cores.put(vertice, -1); // -1 representa que o vértice não foi colorido
+      }
+
+      // Realiza BFS para verificar bipartição
+      Queue<String> queue = new LinkedList<>();
+      for (String vertice : vertices) {
+          if (cores.get(vertice) == -1) { // Se o vértice não foi visitado
+              queue.add(vertice);
+              cores.put(vertice, 0); // Inicia colorindo o vértice com a cor 0
+
+              while (!queue.isEmpty()) {
+                  String u = queue.poll();
+                  int corU = cores.get(u);
+
+                  for (String v : adjList.get(u)) {
+                      if (cores.get(v) == -1) {
+                          // Colorir com a cor oposta
+                          cores.put(v, 1 - corU);
+                          queue.add(v);
+                      } else if (cores.get(v) == corU) {
+                          // Se a cor é a mesma, então o grafo não é bipartido
+                          return false;
+                      }
+                  }
+              }
+          }
+      }
+
+    return true;
+  }
+  /**
+   * Verifica se o grafo é Euleriano.
+   *
+   * @return true se o grafo for Euleriano, false caso contrário.
+   */
+  public boolean isEuleriano() {
+    if (!isConexo()) {
+        return false;
+    }
+
+    Map<String, Integer> grau = new HashMap<>();
+    for (String vertice : vertices) {
+        grau.put(vertice, 0);
+    }
+
+    for (Aresta aresta : arestas) {
+        grau.put(aresta.u, grau.get(aresta.u) + 1);
+        grau.put(aresta.v, grau.get(aresta.v) + 1);
+    }
+
+    for (int g : grau.values()) {
+        if (g % 2 != 0) {
+            return false;
+        }
+    }
+
+    return true;
+  }
+
+    /**
+     * Verifica se o grafo é Hamiltoniano.
+     *
+     * @return true se o grafo for Hamiltoniano, false caso contrário.
+     */
+    public boolean isHamiltoniano() {
+        List<String> caminho = new ArrayList<>();
+        Set<String> visitados = new HashSet<>();
+        String verticeInicial = vertices.iterator().next(); // Escolhe um vértice inicial
+        caminho.add(verticeInicial);
+        visitados.add(verticeInicial);
+        return buscaHamiltoniana(verticeInicial, caminho, visitados);
+    }
+
+    /**
+     * Método recursivo para busca de ciclo Hamiltoniano.
+     *
+     * @param verticeAtual O vértice atual no caminho.
+     * @param caminho      O caminho percorrido até agora.
+     * @param visitados    Conjunto de vértices visitados.
+     * @return true se um ciclo Hamiltoniano for encontrado, false caso contrário.
+     */
+    private boolean buscaHamiltoniana(String verticeAtual, List<String> caminho, Set<String> visitados) {
+        if (caminho.size() == vertices.size()) {
+            // Verifica se há uma aresta de volta para o vértice inicial
+            String verticeInicial = caminho.get(0);
+            return existeAresta(verticeAtual, verticeInicial);
+        }
+
+        for (String vizinho : getVizinhos(verticeAtual)) {
+            if (!visitados.contains(vizinho)) {
+                caminho.add(vizinho);
+                visitados.add(vizinho);
+                if (buscaHamiltoniana(vizinho, caminho, visitados)) {
+                    return true;
+                }
+                caminho.remove(caminho.size() - 1);
+                visitados.remove(vizinho);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Obtém os vizinhos de um dado vértice.
+     *
+     * @param vertice O vértice para o qual os vizinhos são buscados.
+     * @return Conjunto de vértices vizinhos.
+     */
+    private Set<String> getVizinhos(String vertice) {
+        Set<String> vizinhos = new HashSet<>();
+        for (Aresta aresta : arestas) {
+            if (aresta.u.equals(vertice)) {
+                vizinhos.add(aresta.v);
+            } else if (aresta.v.equals(vertice)) {
+                vizinhos.add(aresta.u);
+            }
+        }
+        return vizinhos;
+    }
+
+    /**
+     * Verifica se existe uma aresta entre dois vértices.
+     *
+     * @param u O primeiro vértice.
+     * @param v O segundo vértice.
+     * @return true se existir uma aresta entre os vértices, false caso contrário.
+     */
+    private boolean existeAresta(String u, String v) {
+        for (Aresta aresta : arestas) {
+            if ((aresta.u.equals(u) && aresta.v.equals(v)) || (aresta.u.equals(v) && aresta.v.equals(u))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+ /**
+     * Verifica se o grafo é cíclico.
+     *
+     * @return true se o grafo for cíclico, false caso contrário.
+     */
+    public boolean isCiclico() {
+      Set<String> visitados = new HashSet<>();
+      for (String vertice : vertices) {
+          if (!visitados.contains(vertice)) {
+              if (dfsCiclico(vertice, visitados, null)) {
+                  return true;
+              }
+          }
+      }
+      return false;
+  }
+
+  /**
+   * Método recursivo para busca em profundidade para detectar ciclos.
+   *
+   * @param verticeAtual O vértice atual na busca.
+   * @param visitados    Conjunto de vértices visitados.
+   * @param pai          O vértice pai no caminho atual.
+   * @return true se um ciclo for encontrado, false caso contrário.
+   */
+  private boolean dfsCiclico(String verticeAtual, Set<String> visitados, String pai) {
+      visitados.add(verticeAtual);
+
+      for (String vizinho : adjacencia.get(verticeAtual)) {
+          if (!visitados.contains(vizinho)) {
+              if (dfsCiclico(vizinho, visitados, verticeAtual)) {
+                  return true;
+              }
+          } else if (!vizinho.equals(pai)) {
+              return true;
+          }
+      }
+      return false;
+  }
+
+  /**
+   * Constrói a lista de adjacência para o grafo.
+   */
+  private void construirAdjacencia() {
+      for (String vertice : vertices) {
+          adjacencia.put(vertice, new ArrayList<>());
+      }
+      for (Aresta aresta : arestas) {
+          adjacencia.get(aresta.u).add(aresta.v);
+          adjacencia.get(aresta.v).add(aresta.u);
+      }
+  }
+  public boolean isPlanar() {
+    int V = vertices.size();
+    int E = arestas.size();
+
+    // Verificação básica usando a desigualdade de grafos planares.
+    if (E > 3 * V - 6) {
+        return false;
+    }
+
+    // Verificação adicional para grafos com menos de 5 vértices.
+    if (V < 5) {
+        return true;
+    }
+
+    // Verificação de subgrafos K5 e K3,3
+    // (Implementação específica pode ser adicionada aqui para subgrafos específicos)
+
+    return true;
+}
   public Set<String> getVertices() {
     return vertices;
   }
