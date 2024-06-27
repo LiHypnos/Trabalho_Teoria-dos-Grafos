@@ -18,7 +18,7 @@ public class Main {
             System.out.println("componentes conexas: " + grafo.getComponentesConexas());        
             System.out.println("caminho hamiltoniano: " + grafo.encontrarCaminhoHamiltoniano());
             System.out.println("caminho euleriano: " + grafo.encontrarCaminhoEuleriano());
-            //System.out.println("vertices de articulacao: " + grafo.encontrarVerticesDeArticulacao());
+            System.out.println("vertices de articulacao: " + grafo.encontrarVerticesArticulacao()); //erro
         } catch (IOException e) {
             e.printStackTrace();
         }

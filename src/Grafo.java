@@ -493,10 +493,139 @@ private void DFS(String vertice, Set<String> visitados, List<String> componente)
 
       return false; // Não encontrou caminho hamiltoniano a partir deste vértice
   }
-//encontrar V de articulação
-//arestas ponte
+    /**
+ * Retorna a matriz de adjacência do grafo.
+ *
+ * @return Uma matriz de adjacência representando o grafo.
+ */
+public int[][] getMatrizAdjacencia() {
+    int n = vertices.size();
+    List<String> verticesList = new ArrayList<>(vertices);
+    int[][] matrizAdjacencia = new int[n][n];
 
-  public Set<String> getVertices() {
+    for (Aresta aresta : arestas) {
+        int uIndex = verticesList.indexOf(aresta.getU());
+        int vIndex = verticesList.indexOf(aresta.getV());
+        matrizAdjacencia[uIndex][vIndex] = aresta.getPeso();
+        matrizAdjacencia[vIndex][uIndex] = aresta.getPeso();  // Para grafos não direcionados
+    }
+
+    return matrizAdjacencia;
+}
+
+/**
+ * Método para encontrar os vértices de articulação em um grafo.
+ *
+ * @return Conjunto de vértices de articulação.
+ */
+public Set<String> encontrarVerticesArticulacao() {
+    Set<String> articulacoes = new HashSet<>();
+    Map<String, Integer> discovery = new HashMap<>();
+    Map<String, Integer> low = new HashMap<>();
+    Map<String, String> parent = new HashMap<>();
+    Set<String> visited = new HashSet<>();
+
+    for (String vertice : vertices) {
+        discovery.put(vertice, -1);
+        low.put(vertice, -1);
+        parent.put(vertice, null);
+    }
+
+    for (String vertice : vertices) {
+        if (!visited.contains(vertice)) {
+            dfsArticulacoes(vertice, visited, discovery, low, parent, articulacoes);
+        }
+    }
+
+    return articulacoes;
+}
+
+private void dfsArticulacoes(String u, Set<String> visited, Map<String, Integer> discovery, Map<String, Integer> low,
+                                Map<String, String> parent, Set<String> articulacoes) {
+    int time = 0;
+    visited.add(u);
+    discovery.put(u, time);
+    low.put(u, time);
+    time++;
+
+    int children = 0;
+    for (String v : adjacencia.get(u)) {
+        if (!visited.contains(v)) {
+            parent.put(v, u);
+            children++;
+            dfsArticulacoes(v, visited, discovery, low, parent, articulacoes);
+
+            low.put(u, Math.min(low.get(u), low.get(v)));
+
+            if (parent.get(u) == null && children > 1) {
+                articulacoes.add(u);
+            }
+
+            if (parent.get(u) != null && low.get(v) >= discovery.get(u)) {
+                articulacoes.add(u);
+            }
+        } else if (!v.equals(parent.get(u))) {
+            low.put(u, Math.min(low.get(u), discovery.get(v)));
+        }
+    }
+    }
+
+  /**
+     * Método para encontrar as arestas ponte em um grafo.
+     *
+     * @return Lista de arestas ponte.
+     */
+    public List<Aresta> encontrarArestasPonte() {
+        List<Aresta> pontes = new ArrayList<>();
+        Map<String, Integer> discovery = new HashMap<>();
+        Map<String, Integer> low = new HashMap<>();
+        Map<String, String> parent = new HashMap<>();
+        Set<String> visited = new HashSet<>();
+
+        for (String vertice : vertices) {
+            discovery.put(vertice, -1);
+            low.put(vertice, -1);
+            parent.put(vertice, null);
+        }
+
+        for (String vertice : vertices) {
+            if (!visited.contains(vertice)) {
+                dfsPontes(vertice, visited, discovery, low, parent, pontes);
+            }
+        }
+
+        return pontes;
+    }
+
+    private void dfsPontes(String u, Set<String> visited, Map<String, Integer> discovery, Map<String, Integer> low,
+                           Map<String, String> parent, List<Aresta> pontes) {
+        int time = 0;
+        visited.add(u);
+        discovery.put(u, time);
+        low.put(u, time);
+        time++;
+
+        for (String v : adjacencia.get(u)) {
+            if (!visited.contains(v)) {
+                parent.put(v, u);
+                dfsPontes(v, visited, discovery, low, parent, pontes);
+
+                low.put(u, Math.min(low.get(u), low.get(v)));
+
+                if (low.get(v) > discovery.get(u)) {
+                    pontes.add(new Aresta(u, v, 0));
+                }
+            } else if (!v.equals(parent.get(u))) {
+                low.put(u, Math.min(low.get(u), discovery.get(v)));
+            }
+        }
+    }
+
+  public Map<String, List<String>> getAdjacencia() {
+        return adjacencia;
+    }
+
+public Set<String> getVertices() {
     return vertices;
   }
 
