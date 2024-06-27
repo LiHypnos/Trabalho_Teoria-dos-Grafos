@@ -1,10 +1,12 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
@@ -518,56 +520,56 @@ public int[][] getMatrizAdjacencia() {
  *
  * @return Conjunto de vértices de articulação.
  */
-public Set<String> encontrarVerticesArticulacao() {
-    Set<String> articulacoes = new HashSet<>();
-    Map<String, Integer> discovery = new HashMap<>();
-    Map<String, Integer> low = new HashMap<>();
-    Map<String, String> parent = new HashMap<>();
-    Set<String> visited = new HashSet<>();
+    public Set<String> encontrarVerticesArticulacao() {
+        Set<String> articulacoes = new HashSet<>();
+        Map<String, Integer> discovery = new HashMap<>();
+        Map<String, Integer> low = new HashMap<>();
+        Map<String, String> parent = new HashMap<>();
+        Set<String> visited = new HashSet<>();
 
-    for (String vertice : vertices) {
-        discovery.put(vertice, -1);
-        low.put(vertice, -1);
-        parent.put(vertice, null);
-    }
-
-    for (String vertice : vertices) {
-        if (!visited.contains(vertice)) {
-            dfsArticulacoes(vertice, visited, discovery, low, parent, articulacoes);
+        for (String vertice : vertices) {
+            discovery.put(vertice, -1);
+            low.put(vertice, -1);
+            parent.put(vertice, null);
         }
+
+        for (String vertice : vertices) {
+            if (!visited.contains(vertice)) {
+                dfsArticulacoes(vertice, visited, discovery, low, parent, articulacoes);
+            }
+        }
+
+        return articulacoes;
     }
 
-    return articulacoes;
-}
-
-private void dfsArticulacoes(String u, Set<String> visited, Map<String, Integer> discovery, Map<String, Integer> low,
+    private void dfsArticulacoes(String u, Set<String> visited, Map<String, Integer> discovery, Map<String, Integer> low,
                                 Map<String, String> parent, Set<String> articulacoes) {
-    int time = 0;
-    visited.add(u);
-    discovery.put(u, time);
-    low.put(u, time);
-    time++;
+        int time = 0;
+        visited.add(u);
+        discovery.put(u, time);
+        low.put(u, time);
+        time++;
 
-    int children = 0;
-    for (String v : adjacencia.get(u)) {
-        if (!visited.contains(v)) {
-            parent.put(v, u);
-            children++;
-            dfsArticulacoes(v, visited, discovery, low, parent, articulacoes);
+        int children = 0;
+        for (String v : adjacencia.get(u)) {
+            if (!visited.contains(v)) {
+                parent.put(v, u);
+                children++;
+                dfsArticulacoes(v, visited, discovery, low, parent, articulacoes);
 
-            low.put(u, Math.min(low.get(u), low.get(v)));
+                low.put(u, Math.min(low.get(u), low.get(v)));
 
-            if (parent.get(u) == null && children > 1) {
-                articulacoes.add(u);
+                if (parent.get(u) == null && children > 1) {
+                    articulacoes.add(u);
+                }
+
+                if (parent.get(u) != null && low.get(v) >= discovery.get(u)) {
+                    articulacoes.add(u);
+                }
+            } else if (!v.equals(parent.get(u))) {
+                low.put(u, Math.min(low.get(u), discovery.get(v)));
             }
-
-            if (parent.get(u) != null && low.get(v) >= discovery.get(u)) {
-                articulacoes.add(u);
-            }
-        } else if (!v.equals(parent.get(u))) {
-            low.put(u, Math.min(low.get(u), discovery.get(v)));
         }
-    }
     }
 
   /**
@@ -620,16 +622,252 @@ private void dfsArticulacoes(String u, Set<String> visited, Map<String, Integer>
             }
         }
     }
-
-  public Map<String, List<String>> getAdjacencia() {
-        return adjacencia;
+ /**
+     * Gera uma árvore de profundidade (DFS Tree) a partir de um vértice inicial.
+     *
+     * @param verticeInicial O vértice inicial para começar a busca em profundidade.
+     * @return A árvore de profundidade representada como um grafo.
+     */
+    public Grafo gerarArvoreDeProfundidade(String verticeInicial) {
+        Set<String> visitados = new HashSet<>();
+        List<Aresta> arestasArvore = new ArrayList<>();
+        dfsArvore(verticeInicial, visitados, arestasArvore, null);
+        return new Grafo(visitados, arestasArvore);
     }
 
-public Set<String> getVertices() {
-    return vertices;
-  }
+    private void dfsArvore(String vertice, Set<String> visitados, List<Aresta> arestasArvore, String pai) {
+        visitados.add(vertice);
+        if (pai != null) {
+            arestasArvore.add(new Aresta(pai, vertice, 1));
+        }
+        for (String vizinho : adjacencia.get(vertice)) {
+            if (!visitados.contains(vizinho)) {
+                dfsArvore(vizinho, visitados, arestasArvore, vertice);
+            }
+        }
+    }
 
-  public List<Aresta> getArestas() {
-    return arestas;
-  }
+    /**
+     * Gera uma árvore de largura (BFS Tree) a partir de um vértice inicial.
+     *
+     * @param verticeInicial O vértice inicial para começar a busca em largura.
+     * @return A árvore de largura representada como um grafo.
+     */
+    public Grafo gerarArvoreDeLargura(String verticeInicial) {
+        Set<String> visitados = new HashSet<>();
+        List<Aresta> arestasArvore = new ArrayList<>();
+        Queue<String> fila = new LinkedList<>();
+        fila.add(verticeInicial);
+        visitados.add(verticeInicial);
+
+        while (!fila.isEmpty()) {
+            String vertice = fila.poll();
+            for (String vizinho : adjacencia.get(vertice)) {
+                if (!visitados.contains(vizinho)) {
+                    visitados.add(vizinho);
+                    fila.add(vizinho);
+                    arestasArvore.add(new Aresta(vertice, vizinho, 1));
+                }
+            }
+        }
+
+        return new Grafo(visitados, arestasArvore);
+    }
+    /**
+     * Gera uma árvore geradora mínima (MST) usando o algoritmo de Kruskal.
+     *
+     * @return A árvore geradora mínima representada como um grafo.
+     */
+    public Grafo gerarArvoreGeradoraMinima() {
+        List<Aresta> mstArestas = new ArrayList<>();
+        UnionFind uf = new UnionFind(vertices.size());
+        Map<String, Integer> vertexIndexMap = new HashMap<>();
+        int index = 0;
+
+        for (String vertex : vertices) {
+            vertexIndexMap.put(vertex, index++);
+        }
+
+        Collections.sort(arestas, Comparator.comparingInt(Aresta::getPeso));
+
+        for (Aresta aresta : arestas) {
+            int u = vertexIndexMap.get(aresta.getU());
+            int v = vertexIndexMap.get(aresta.getV());
+            if (uf.find(u) != uf.find(v)) {
+                uf.union(u, v);
+                mstArestas.add(aresta);
+            }
+        }
+
+        return new Grafo(vertices, mstArestas);
+    }
+  /**
+     * Gera a ordem topológica do grafo.
+     *
+     * @return Lista de vértices na ordem topológica.
+     */
+    public List<String> gerarOrdemTopologica() {
+        Set<String> visitados = new HashSet<>();
+        Stack<String> pilha = new Stack<>();
+        for (String vertice : vertices) {
+            if (!visitados.contains(vertice)) {
+                dfs(vertice, visitados, pilha);
+            }
+        }
+        List<String> ordemTopologica = new ArrayList<>();
+        while (!pilha.isEmpty()) {
+            ordemTopologica.add(pilha.pop());
+        }
+        return ordemTopologica;
+    }
+
+    /**
+     * Realiza uma busca em profundidade (DFS) para a ordenação topológica.
+     *
+     * @param vertice    O vértice atual.
+     * @param visitados  Conjunto de vértices visitados.
+     * @param pilha      Pilha para armazenar a ordem topológica.
+     */
+    private void dfs(String vertice, Set<String> visitados, Stack<String> pilha) {
+        visitados.add(vertice);
+        for (String adj : adjacencia.get(vertice)) {
+            if (!visitados.contains(adj)) {
+                dfs(adj, visitados, pilha);
+            }
+        }
+        pilha.push(vertice);
+    }
+ /**
+     * Encontra o fluxo máximo de uma fonte para um sumidouro usando o algoritmo de Ford-Fulkerson.
+     *
+     * @param fonte     O vértice fonte.
+     * @param sumidouro O vértice sumidouro.
+     * @return O fluxo máximo entre a fonte e o sumidouro.
+     */
+    public int fluxoMaximo(String fonte, String sumidouro) {
+        Map<String, Map<String, Integer>> capacidade = new HashMap<>();
+        for (Aresta aresta : arestas) {
+            String u = aresta.getU();
+            String v = aresta.getV();
+            int peso = aresta.getPeso();
+            capacidade.putIfAbsent(u, new HashMap<>());
+            capacidade.putIfAbsent(v, new HashMap<>());
+            capacidade.get(u).put(v, peso);
+            capacidade.get(v).put(u, 0); // Inicializa a capacidade de volta com 0 para grafos não direcionados
+        }
+
+        Map<String, Map<String, Integer>> fluxo = new HashMap<>();
+        for (String u : capacidade.keySet()) {
+            fluxo.put(u, new HashMap<>());
+            for (String v : capacidade.get(u).keySet()) {
+                fluxo.get(u).put(v, 0);
+            }
+        }
+
+        int fluxoMaximo = 0;
+
+        while (true) {
+            List<String> caminho = bfsParaCaminho(fonte, sumidouro, capacidade, fluxo);
+            if (caminho == null) {
+                break;
+            }
+
+            int fluxoMinimo = Integer.MAX_VALUE;
+            for (int i = 0; i < caminho.size() - 1; i++) {
+                String u = caminho.get(i);
+                String v = caminho.get(i + 1);
+                fluxoMinimo = Math.min(fluxoMinimo, capacidade.get(u).get(v) - fluxo.get(u).get(v));
+            }
+
+            for (int i = 0; i < caminho.size() - 1; i++) {
+                String u = caminho.get(i);
+                String v = caminho.get(i + 1);
+                fluxo.get(u).put(v, fluxo.get(u).get(v) + fluxoMinimo);
+                fluxo.get(v).put(u, fluxo.get(v).get(u) - fluxoMinimo);
+            }
+
+            fluxoMaximo += fluxoMinimo;
+        }
+
+        return fluxoMaximo;
+    }
+
+    /**
+     * Utiliza BFS para encontrar um caminho aumentante na rede residual.
+     *
+     * @param fonte     O vértice fonte.
+     * @param sumidouro O vértice sumidouro.
+     * @param capacidade Capacidade de fluxo entre os vértices.
+     * @param fluxo     O fluxo atual na rede.
+     * @return Uma lista de vértices representando um caminho aumentante, ou null se não houver caminho.
+     */
+    private List<String> bfsParaCaminho(String fonte, String sumidouro, Map<String, Map<String, Integer>> capacidade, Map<String, Map<String, Integer>> fluxo) {
+        Queue<String> fila = new LinkedList<>();
+        Map<String, String> predecessores = new HashMap<>();
+
+        fila.add(fonte);
+        predecessores.put(fonte, null);
+
+        while (!fila.isEmpty()) {
+            String u = fila.poll();
+
+            if (u.equals(sumidouro)) {
+                List<String> caminho = new ArrayList<>();
+                for (String v = sumidouro; v != null; v = predecessores.get(v)) {
+                    caminho.add(v);
+                }
+                Collections.reverse(caminho);
+                return caminho;
+            }
+
+            for (String v : adjacencia.get(u)) {
+                if (!predecessores.containsKey(v) && capacidade.get(u).get(v) > fluxo.get(u).get(v)) {
+                    fila.add(v);
+                    predecessores.put(v, u);
+                }
+            }
+        }
+
+        return null;
+    }
+    /**
+     * Retorna o fechamento transitivo do grafo.
+     *
+     * @return Um mapa representando o fechamento transitivo do grafo.
+     */
+    public Map<String, Set<String>> fechoTransitivo() {
+        Map<String, Set<String>> fecho = new HashMap<>();
+
+        // Inicializa o fecho transitivo com a adjacência atual
+        for (String v : vertices) {
+            fecho.put(v, new HashSet<>(adjacencia.get(v)));
+        }
+
+        // Algoritmo de Warshall para calcular o fechamento transitivo
+        for (String k : vertices) {
+            for (String i : vertices) {
+                for (String j : vertices) {
+                    if (fecho.get(i).contains(k) && fecho.get(k).contains(j)) {
+                        fecho.get(i).add(j);
+                    }
+                }
+            }
+        }
+
+        return fecho;
+    }
+
+    public Map<String, List<String>> getAdjacencia() {
+            return adjacencia;
+    }
+
+    public Set<String> getVertices() {
+        return vertices;
+    }
+
+    public List<Aresta> getArestas() {
+        return arestas;
+    }
 }
+
+//caminho minimo
