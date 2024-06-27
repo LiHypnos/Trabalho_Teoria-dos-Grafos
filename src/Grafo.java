@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -13,10 +12,8 @@ import java.util.Stack;
  * Classe que representa um grafo com vértices e arestas.
  */
 public class Grafo {
-  private Set<String> vertices;
+  private HashMap<String, Vertice> vertices;
   private List<Aresta> arestas;
-  private Map<String, List<String>> adjacencia;
-
 
   /**
    * Construtor para inicializar o grafo com vértices e arestas.
@@ -24,11 +21,9 @@ public class Grafo {
    * @param vertices Conjunto de vértices do grafo.
    * @param arestas  Lista de arestas do grafo.
    */
-  public Grafo(Set<String> vertices, List<Aresta> arestas) {
+  public Grafo(HashMap<String, Vertice> vertices, List<Aresta> arestas) {
     this.vertices = vertices;
     this.arestas = arestas;
-    this.adjacencia = new HashMap<>();
-    construirAdjacencia();
   }
 
   /**
@@ -76,26 +71,16 @@ public class Grafo {
           return true; // Um grafo vazio é considerado conexo
       }
 
-      // Mapa de adjacência
-      Map<String, Set<String>> adjList = new HashMap<>();
-      for (String vertice : vertices) {
-          adjList.put(vertice, new HashSet<>());
-      }
-      for (Aresta aresta : arestas) {
-          adjList.get(aresta.u).add(aresta.v);
-          adjList.get(aresta.v).add(aresta.u); // Considerando grafo não-direcionado
-      }
-
       // Realiza DFS para verificar conectividade
-      Set<String> visitados = new HashSet<>();
-      Stack<String> stack = new Stack<>();
-      stack.push(vertices.iterator().next());
+      Set<Vertice> visitados = new HashSet<>();
+      Stack<Vertice> stack = new Stack<>();
+      stack.push(vertices.values().iterator().next());
 
       while (!stack.isEmpty()) {
-          String vertice = stack.pop();
+          Vertice vertice = stack.pop();
           if (!visitados.contains(vertice)) {
               visitados.add(vertice);
-              for (String adjacente : adjList.get(vertice)) {
+              for (Vertice adjacente : vertice.adjacencia) {
                   if (!visitados.contains(adjacente)) {
                       stack.push(adjacente);
                   }
@@ -116,39 +101,29 @@ public class Grafo {
           return true; // Um grafo vazio é considerado bipartido
       }
 
-      // Mapa de adjacência
-      Map<String, Set<String>> adjList = new HashMap<>();
-      for (String vertice : vertices) {
-          adjList.put(vertice, new HashSet<>());
-      }
-      for (Aresta aresta : arestas) {
-          adjList.get(aresta.u).add(aresta.v);
-          adjList.get(aresta.v).add(aresta.u); // Considerando grafo não-direcionado
-      }
-
       // Mapa para armazenar cores dos vértices
-      Map<String, Integer> cores = new HashMap<>();
-      for (String vertice : vertices) {
+      Map<Vertice, Integer> cores = new HashMap<>();
+      for (Vertice vertice : vertices.values()) {
           cores.put(vertice, -1); // -1 representa que o vértice não foi colorido
       }
 
       // Realiza BFS para verificar bipartição
-      Queue<String> queue = new LinkedList<>();
-      for (String vertice : vertices) {
+      LinkedList<Vertice> queue = new LinkedList<>();
+      for (Vertice vertice : vertices.values()) {
           if (cores.get(vertice) == -1) { // Se o vértice não foi visitado
               queue.add(vertice);
               cores.put(vertice, 0); // Inicia colorindo o vértice com a cor 0
 
               while (!queue.isEmpty()) {
-                  String u = queue.poll();
+                  Vertice u = queue.poll();
                   int corU = cores.get(u);
 
-                  for (String v : adjList.get(u)) {
+                  for (Vertice v : u.adjacencia) {
                       if (cores.get(v) == -1) {
                           // Colorir com a cor oposta
                           cores.put(v, 1 - corU);
                           queue.add(v);
-                      } else if (cores.get(v) == corU) {
+                      } else if (cores.get(v).equals(corU)) {
                           // Se a cor é a mesma, então o grafo não é bipartido
                           return false;
                       }
@@ -169,8 +144,8 @@ public class Grafo {
         return false;
     }
 
-    Map<String, Integer> grau = new HashMap<>();
-    for (String vertice : vertices) {
+    Map<Vertice, Integer> grau = new HashMap<>();
+    for (Vertice vertice : vertices.values()) {
         grau.put(vertice, 0);
     }
 
@@ -194,9 +169,9 @@ public class Grafo {
      * @return true se o grafo for Hamiltoniano, false caso contrário.
      */
     public boolean isHamiltoniano() {
-        List<String> caminho = new ArrayList<>();
-        Set<String> visitados = new HashSet<>();
-        String verticeInicial = vertices.iterator().next(); // Escolhe um vértice inicial
+        List<Vertice> caminho = new ArrayList<>();
+        Set<Vertice> visitados = new HashSet<>();
+        Vertice verticeInicial = vertices.values().iterator().next(); // Escolhe um vértice inicial
         caminho.add(verticeInicial);
         visitados.add(verticeInicial);
         return buscaHamiltoniana(verticeInicial, caminho, visitados);
@@ -210,14 +185,14 @@ public class Grafo {
      * @param visitados    Conjunto de vértices visitados.
      * @return true se um ciclo Hamiltoniano for encontrado, false caso contrário.
      */
-    private boolean buscaHamiltoniana(String verticeAtual, List<String> caminho, Set<String> visitados) {
+    private boolean buscaHamiltoniana(Vertice verticeAtual, List<Vertice> caminho, Set<Vertice> visitados) {
         if (caminho.size() == vertices.size()) {
             // Verifica se há uma aresta de volta para o vértice inicial
-            String verticeInicial = caminho.get(0);
+            Vertice verticeInicial = caminho.get(0);
             return existeAresta(verticeAtual, verticeInicial);
         }
 
-        for (String vizinho : getVizinhos(verticeAtual)) {
+        for (Vertice vizinho : getVizinhos(verticeAtual)) {
             if (!visitados.contains(vizinho)) {
                 caminho.add(vizinho);
                 visitados.add(vizinho);
@@ -238,8 +213,8 @@ public class Grafo {
      * @param vertice O vértice para o qual os vizinhos são buscados.
      * @return Conjunto de vértices vizinhos.
      */
-    private Set<String> getVizinhos(String vertice) {
-        Set<String> vizinhos = new HashSet<>();
+    private Set<Vertice> getVizinhos(Vertice vertice) {
+        Set<Vertice> vizinhos = new HashSet<>();
         for (Aresta aresta : arestas) {
             if (aresta.u.equals(vertice)) {
                 vizinhos.add(aresta.v);
@@ -257,7 +232,7 @@ public class Grafo {
      * @param v O segundo vértice.
      * @return true se existir uma aresta entre os vértices, false caso contrário.
      */
-    private boolean existeAresta(String u, String v) {
+    private boolean existeAresta(Vertice u, Vertice v) {
         for (Aresta aresta : arestas) {
             if ((aresta.u.equals(u) && aresta.v.equals(v)) || (aresta.u.equals(v) && aresta.v.equals(u))) {
                 return true;
@@ -272,8 +247,8 @@ public class Grafo {
      * @return true se o grafo for cíclico, false caso contrário.
      */
     public boolean isCiclico() {
-      Set<String> visitados = new HashSet<>();
-      for (String vertice : vertices) {
+      Set<Vertice> visitados = new HashSet<>();
+      for (Vertice vertice : vertices.values()) {
           if (!visitados.contains(vertice)) {
               if (dfsCiclico(vertice, visitados, null)) {
                   return true;
@@ -291,10 +266,10 @@ public class Grafo {
    * @param pai          O vértice pai no caminho atual.
    * @return true se um ciclo for encontrado, false caso contrário.
    */
-  private boolean dfsCiclico(String verticeAtual, Set<String> visitados, String pai) {
+  private boolean dfsCiclico(Vertice verticeAtual, Set<Vertice> visitados, Vertice pai) {
       visitados.add(verticeAtual);
 
-      for (String vizinho : adjacencia.get(verticeAtual)) {
+      for (Vertice vizinho : verticeAtual.adjacencia) {
           if (!visitados.contains(vizinho)) {
               if (dfsCiclico(vizinho, visitados, verticeAtual)) {
                   return true;
@@ -306,18 +281,6 @@ public class Grafo {
       return false;
   }
 
-  /**
-   * Constrói a lista de adjacência para o grafo.
-   */
-  private void construirAdjacencia() {
-      for (String vertice : vertices) {
-          adjacencia.put(vertice, new ArrayList<>());
-      }
-      for (Aresta aresta : arestas) {
-          adjacencia.get(aresta.u).add(aresta.v);
-          adjacencia.get(aresta.v).add(aresta.u);
-      }
-  }
   public boolean isPlanar() {
     int V = vertices.size();
     int E = arestas.size();
@@ -337,13 +300,13 @@ public class Grafo {
 
     return true;
 }
-public List<List<String>> getComponentesConexas() {
-  List<List<String>> componentes = new ArrayList<>();
-  Set<String> visitados = new HashSet<>();
+public List<List<Vertice>> getComponentesConexas() {
+  List<List<Vertice>> componentes = new ArrayList<>();
+  Set<Vertice> visitados = new HashSet<>();
 
-  for (String vertice : vertices) {
+  for (Vertice vertice : vertices.values()) {
       if (!visitados.contains(vertice)) {
-          List<String> componente = new ArrayList<>();
+          List<Vertice> componente = new ArrayList<>();
           DFS(vertice, visitados, componente);
           componentes.add(componente);
       }
@@ -352,11 +315,11 @@ public List<List<String>> getComponentesConexas() {
   return componentes;
 }
 
-private void DFS(String vertice, Set<String> visitados, List<String> componente) {
+private void DFS(Vertice vertice, Set<Vertice> visitados, List<Vertice> componente) {
   visitados.add(vertice);
   componente.add(vertice);
 
-  for (String vizinho : adjacencia.get(vertice)) {
+  for (Vertice vizinho : vertice.adjacencia) {
       if (!visitados.contains(vizinho)) {
           DFS(vizinho, visitados, componente);
       }
@@ -368,22 +331,22 @@ private void DFS(String vertice, Set<String> visitados, List<String> componente)
      *
      * @return Lista representando o caminho euleriano, ou null se não existir.
      */
-    public List<String> encontrarCaminhoEuleriano() {
+    public List<Vertice> encontrarCaminhoEuleriano() {
       // Verifica as condições para existência de caminho euleriano
       if (!verificarCondicoesParaEuleriano()) {
           return null;
       }
 
       // Encontra o vértice inicial para começar a busca
-      String inicio = encontrarVerticeInicial();
-      List<String> caminho = new ArrayList<>();
-      Stack<String> pilha = new Stack<>();
+      Vertice inicio = encontrarVerticeInicial();
+      List<Vertice> caminho = new ArrayList<>();
+      Stack<Vertice> pilha = new Stack<>();
       pilha.push(inicio);
 
       while (!pilha.isEmpty()) {
-          String atual = pilha.peek();
-          if (!adjacencia.get(atual).isEmpty()) {
-              String proximo = adjacencia.get(atual).remove(0);
+          Vertice atual = pilha.peek();
+          if (!atual.adjacencia.isEmpty()) {
+              Vertice proximo = atual.adjacencia.remove(0);
               removerAresta(atual, proximo);
               pilha.push(proximo);
           } else {
@@ -403,8 +366,8 @@ private void DFS(String vertice, Set<String> visitados, List<String> componente)
    */
   private boolean verificarCondicoesParaEuleriano() {
       int countOddDegree = 0;
-      for (String v : vertices) {
-          if (adjacencia.get(v).size() % 2 != 0) {
+      for (Vertice v : vertices.values()) {
+          if (v.adjacencia.size() % 2 != 0) {
               countOddDegree++;
           }
       }
@@ -416,14 +379,14 @@ private void DFS(String vertice, Set<String> visitados, List<String> componente)
    *
    * @return Vértice inicial para começar a busca.
    */
-  private String encontrarVerticeInicial() {
-      for (String v : vertices) {
-          if (adjacencia.get(v).size() % 2 != 0) {
+  private Vertice encontrarVerticeInicial() {
+      for (Vertice v : vertices.values()) {
+          if (v.adjacencia.size() % 2 != 0) {
               return v; // Encontra um vértice de grau ímpar
           }
       }
       // Se não houver vértice de grau ímpar, retorna qualquer vértice
-      return vertices.iterator().next();
+      return vertices.values().iterator().next();
   }
 
   /**
@@ -432,9 +395,9 @@ private void DFS(String vertice, Set<String> visitados, List<String> componente)
    * @param u Vértice u.
    * @param v Vértice v.
    */
-  private void removerAresta(String u, String v) {
-      adjacencia.get(u).remove(v);
-      adjacencia.get(v).remove(u);
+  private void removerAresta(Vertice u, Vertice v) {
+        u.adjacencia.remove(v);
+        v.adjacencia.remove(u);
   }
 
    /**
@@ -442,12 +405,12 @@ private void DFS(String vertice, Set<String> visitados, List<String> componente)
      *
      * @return Lista representando o caminho hamiltoniano, ou null se não existir.
      */
-    public List<String> encontrarCaminhoHamiltoniano() {
-      List<String> caminho = new ArrayList<>();
-      Set<String> visitados = new HashSet<>();
+    public List<Vertice> encontrarCaminhoHamiltoniano() {
+      List<Vertice> caminho = new ArrayList<>();
+      Set<Vertice> visitados = new HashSet<>();
 
       // Inicia a busca de caminho hamiltoniano a partir de cada vértice
-      for (String v : vertices) {
+      for (Vertice v : vertices.values()) {
           caminho.clear();
           visitados.clear();
           caminho.add(v);
@@ -468,14 +431,14 @@ private void DFS(String vertice, Set<String> visitados, List<String> componente)
    * @param visitados Conjunto de vértices visitados.
    * @return true se encontrou um caminho hamiltoniano, false caso contrário.
    */
-  private boolean encontrarCaminhoHamiltonianoRecursivo(String v, List<String> caminho, Set<String> visitados) {
+  private boolean encontrarCaminhoHamiltonianoRecursivo(Vertice v, List<Vertice> caminho, Set<Vertice> visitados) {
       // Caso base: se o caminho tem todos os vértices, é um caminho hamiltoniano
       if (caminho.size() == vertices.size()) {
           return true;
       }
 
       // Para todos os vizinhos não visitados de v, tenta incluir no caminho
-      for (String vizinho : adjacencia.get(v)) {
+      for (Vertice vizinho : v.adjacencia) {
           if (!visitados.contains(vizinho)) {
               caminho.add(vizinho);
               visitados.add(vizinho);
@@ -496,7 +459,7 @@ private void DFS(String vertice, Set<String> visitados, List<String> componente)
 //encontrar V de articulação
 //arestas ponte
 
-  public Set<String> getVertices() {
+  public HashMap<String, Vertice> getVertices() {
     return vertices;
   }
 

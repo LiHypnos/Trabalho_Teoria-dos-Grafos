@@ -1,10 +1,10 @@
 // Aresta
 class Aresta {
-    String u;
-    String v;
+    Vertice u;
+    Vertice v;
     int peso;
   
-    Aresta(String u, String v, int peso) {
+    Aresta(Vertice u, Vertice v, int peso) {
       this.u = u;
       this.v = v;
       this.peso = peso;

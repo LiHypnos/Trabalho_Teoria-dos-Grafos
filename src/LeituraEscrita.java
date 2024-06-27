@@ -2,9 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.HashMap;
 
 public class LeituraEscrita {
   /**
@@ -31,9 +29,9 @@ public class LeituraEscrita {
     int inicioVertices = conteudoStr.indexOf('{') + 1;
     int fimVertices = conteudoStr.indexOf('}');
     String[] verticesArray = conteudoStr.substring(inicioVertices, fimVertices).split(",");
-    Set<String> vertices = new HashSet<>();
+    HashMap<String, Vertice> vertices = new HashMap<>();
     for (String vertice : verticesArray) {
-      vertices.add(vertice);
+      vertices.put(vertice, new Vertice(vertice));
     }
 
     // Encontrando as arestas
@@ -41,13 +39,17 @@ public class LeituraEscrita {
     int fimArestas = conteudoStr.indexOf('}', inicioArestas);
     String[] arestasArray = conteudoStr.substring(inicioArestas, fimArestas).split("\\),\\(");
 
-    List<Aresta> arestas = new ArrayList<>();
+    ArrayList<Aresta> arestas = new ArrayList<>();
     for (String arestaStr : arestasArray) {
       arestaStr = arestaStr.replace("(", "").replace(")", "");
       String[] partes = arestaStr.split(",");
-      String u = partes[0];
-      String v = partes[1];
+      Vertice u = vertices.get(partes[0]);
+      Vertice v = vertices.get(partes[1]);
+
+      u.adjacencia.add(v);
+
       int peso = (partes.length == 3) ? Integer.parseInt(partes[2]) : 1;
+
       arestas.add(new Aresta(u, v, peso));
     }
 
