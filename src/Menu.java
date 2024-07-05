@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -89,25 +90,49 @@ public class Menu {
         String opcao = scanner.nextLine();
         switch (opcao) {
             case "a":
-                System.out.println(grafo.getVertices());
+                HashMap<String,Vertice> vertices = grafo.getVertices();
+                for(String v : vertices.keySet()){
+                    System.out.print(v + " ");
+                }
                 break;
             case "b":
-                System.out.println(grafo.getArestas());
+                List<Aresta> arestas = grafo.getArestas();
+                for(Aresta a : arestas){
+                    System.out.print(a + " ");
+                }
                 break;
             case "c":
-                System.out.println(grafo.getComponentesConexas());
+                List<List<Vertice>> componentes = grafo.getComponentesConexas();
+                for(List<Vertice> c : componentes){
+                    for(Vertice v : c){
+                        System.out.print(v + " ");
+                    }
+                    System.out.println();
+                }
                 break;
             case "d":
-                System.out.println(grafo.encontrarCaminhoEuleriano());
+                List<Vertice> euler = grafo.encontrarCaminhoEuleriano();
+                for(Vertice v : euler){
+                    System.out.print(v + " -> ");
+                }
                 break;
             case "e":
-                System.out.println(grafo.encontrarCaminhoHamiltoniano());
+                List<Vertice> hamilton = grafo.encontrarCaminhoHamiltoniano();
+                for(Vertice v : hamilton){
+                    System.out.print(v + " -> ");
+                }
                 break;
             case "f":
-                System.out.println(grafo.encontrarVerticesArticulacao());
+                Set<Vertice> articulacao = grafo.encontrarVerticesArticulacao();
+                for(Vertice v : articulacao){
+                    System.out.print(v + " ");
+                }
                 break;
             case "g":
-                System.out.println(grafo.encontrarArestasPonte());
+                List<Aresta> pontes = grafo.encontrarArestasPonte();
+                for(Aresta a : pontes){
+                    System.out.print(a + " ");
+                }
                 break;
             default:
                 break;
@@ -139,15 +164,15 @@ public class Menu {
                 break;
             case "c":
                 Grafo profundidade = grafo.gerarArvoreDeProfundidade(grafo.getVertices().get(0));
-                System.out.println(profundidade.getListaAdjacencia();
+                System.out.println(profundidade.getListaAdjacencia());
                 break;
             case "d":
                 Grafo largura = grafo.gerarArvoreDeLargura(grafo.getVertices().get(0));
-                System.out.println(largura.getListaAdjacencia();
+                System.out.println(largura.getListaAdjacencia());
                 break;
             case "e":
                 Grafo minimo = grafo.gerarArvoreGeradoraMinima();
-                System.out.println(minimo.getListaAdjacencia();
+                System.out.println(minimo.getListaAdjacencia());
                 break;
             case "f":
                 if(!grafo.isDirecionado()) break; // Não é possível gerar ordem topológica em grafos não direcionados
