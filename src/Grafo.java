@@ -864,6 +864,35 @@ public class Grafo {
 
         return fecho;
     }
+    /**
+     * Encontra o menor caminho entre dois vértices.
+     *
+     * @param origem o vértice de origem.
+     * @param fim    o vértice de destino.
+     * @return uma lista contendo os vértices do menor caminho.
+     */
+    public ArrayList<Vertice> caminhoMinimo(Vertice origem, Vertice fim){
+        Aresta anterior = arestas.get(0);
+        int n = 0;
+        ArrayList<Vertice> caminho = new ArrayList<>();
+        while(!caminho.contains(fim)){
+            for(Aresta a : arestas){
+                if(n!=0){
+                    if(a.getPeso() < anterior.getPeso() && a.getVerticePartida().equals(origem)){
+                        caminho.add(a.getVerticeChegada());
+                        origem = a.getVerticeChegada();
+                    } else if (a.getPeso() > anterior.getPeso() && a.getVerticePartida().equals(origem)){
+                        caminho.add(anterior.getVerticeChegada());
+                        origem = anterior.getVerticeChegada();
+                    }
+                }
+                anterior = a;
+                n++;
+            }
+        }
+        return caminho;
+    }
+
 
     public HashMap<String, Vertice> getVertices() {
         return vertices;
