@@ -17,9 +17,14 @@ class Aresta {
 
   int peso;
 
-  Aresta(Vertice u, Vertice v, int peso) {
+  public Aresta(Vertice u, Vertice v) {
     this.u = u;
     this.v = v;
+    this.peso = 1;
+  }
+
+  public Aresta(Vertice u, Vertice v, int peso) {
+    this(u, v);
     this.peso = peso;
   }
 
