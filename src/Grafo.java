@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -20,8 +20,10 @@ public class Grafo {
     /**
      * Construtor para inicializar o grafo com vértices e arestas.
      *
-     * @param vertices Conjunto de vértices do grafo.
-     * @param arestas  Lista de arestas do grafo.
+     * @param vertices
+     *            Conjunto de vértices do grafo.
+     * @param arestas
+     *            Lista de arestas do grafo.
      */
     public Grafo(HashMap<String, Vertice> vertices, List<Aresta> arestas) {
         this.vertices = vertices;
@@ -185,9 +187,12 @@ public class Grafo {
     /**
      * Método recursivo para busca de ciclo Hamiltoniano.
      *
-     * @param verticeAtual O vértice atual no caminho.
-     * @param caminho      O caminho percorrido até agora.
-     * @param visitados    Conjunto de vértices visitados.
+     * @param verticeAtual
+     *            O vértice atual no caminho.
+     * @param caminho
+     *            O caminho percorrido até agora.
+     * @param visitados
+     *            Conjunto de vértices visitados.
      * @return true se um ciclo Hamiltoniano for encontrado, false caso contrário.
      */
     private boolean buscaHamiltoniana(Vertice verticeAtual, List<Vertice> caminho, Set<Vertice> visitados) {
@@ -215,7 +220,8 @@ public class Grafo {
     /**
      * Obtém os vizinhos de um dado vértice.
      *
-     * @param vertice O vértice para o qual os vizinhos são buscados.
+     * @param vertice
+     *            O vértice para o qual os vizinhos são buscados.
      * @return Conjunto de vértices vizinhos.
      */
     private Set<Vertice> getVizinhos(Vertice vertice) {
@@ -233,8 +239,10 @@ public class Grafo {
     /**
      * Verifica se existe uma aresta entre dois vértices.
      *
-     * @param u O primeiro vértice.
-     * @param v O segundo vértice.
+     * @param u
+     *            O primeiro vértice.
+     * @param v
+     *            O segundo vértice.
      * @return true se existir uma aresta entre os vértices, false caso contrário.
      */
     private boolean existeAresta(Vertice u, Vertice v) {
@@ -266,9 +274,12 @@ public class Grafo {
     /**
      * Método recursivo para busca em profundidade para detectar ciclos.
      *
-     * @param verticeAtual O vértice atual na busca.
-     * @param visitados    Conjunto de vértices visitados.
-     * @param pai          O vértice pai no caminho atual.
+     * @param verticeAtual
+     *            O vértice atual na busca.
+     * @param visitados
+     *            Conjunto de vértices visitados.
+     * @param pai
+     *            O vértice pai no caminho atual.
      * @return true se um ciclo for encontrado, false caso contrário.
      */
     private boolean dfsCiclico(Vertice verticeAtual, Set<Vertice> visitados, Vertice pai) {
@@ -400,8 +411,10 @@ public class Grafo {
     /**
      * Remove a aresta do grafo entre os vértices u e v.
      *
-     * @param u Vértice u.
-     * @param v Vértice v.
+     * @param u
+     *            Vértice u.
+     * @param v
+     *            Vértice v.
      */
     private void removerAresta(Vertice u, Vertice v) {
         u.adjacencia.remove(v);
@@ -434,9 +447,12 @@ public class Grafo {
     /**
      * Função recursiva para encontrar caminho hamiltoniano.
      *
-     * @param v         Vértice atual na busca.
-     * @param caminho   Lista que armazena o caminho hamiltoniano encontrado.
-     * @param visitados Conjunto de vértices visitados.
+     * @param v
+     *            Vértice atual na busca.
+     * @param caminho
+     *            Lista que armazena o caminho hamiltoniano encontrado.
+     * @param visitados
+     *            Conjunto de vértices visitados.
      * @return true se encontrou um caminho hamiltoniano, false caso contrário.
      */
     private boolean encontrarCaminhoHamiltonianoRecursivo(Vertice v, List<Vertice> caminho, Set<Vertice> visitados) {
@@ -597,7 +613,8 @@ public class Grafo {
     /**
      * Gera uma árvore de profundidade (DFS Tree) a partir de um vértice inicial.
      *
-     * @param verticeInicial O vértice inicial para começar a busca em profundidade.
+     * @param verticeInicial
+     *            O vértice inicial para começar a busca em profundidade.
      * @return A árvore de profundidade representada como um grafo.
      */
     public Grafo gerarArvoreDeProfundidade(Vertice verticeInicial) {
@@ -623,7 +640,8 @@ public class Grafo {
     /**
      * Gera uma árvore de largura (BFS Tree) a partir de um vértice inicial.
      *
-     * @param verticeInicial O vértice inicial para começar a busca em largura.
+     * @param verticeInicial
+     *            O vértice inicial para começar a busca em largura.
      * @return A árvore de largura representada como um grafo.
      */
     public Grafo gerarArvoreDeLargura(Vertice verticeInicial) {
@@ -699,9 +717,12 @@ public class Grafo {
     /**
      * Realiza uma busca em profundidade (DFS) para a ordenação topológica.
      *
-     * @param vertice   O vértice atual.
-     * @param visitados Conjunto de vértices visitados.
-     * @param pilha     Pilha para armazenar a ordem topológica.
+     * @param vertice
+     *            O vértice atual.
+     * @param visitados
+     *            Conjunto de vértices visitados.
+     * @param pilha
+     *            Pilha para armazenar a ordem topológica.
      */
     private void dfs(Vertice vertice, HashMap<String, Vertice> visitados, Stack<Vertice> pilha) {
         visitados.put(vertice.toString(), vertice);
@@ -717,8 +738,10 @@ public class Grafo {
      * Encontra o fluxo máximo de uma fonte para um sumidouro usando o algoritmo de
      * Ford-Fulkerson.
      *
-     * @param fonte     O vértice fonte.
-     * @param sumidouro O vértice sumidouro.
+     * @param fonte
+     *            O vértice fonte.
+     * @param sumidouro
+     *            O vértice sumidouro.
      * @return O fluxo máximo entre a fonte e o sumidouro.
      */
     public int fluxoMaximo(Vertice fonte, Vertice sumidouro) {
@@ -772,10 +795,14 @@ public class Grafo {
     /**
      * Utiliza BFS para encontrar um caminho aumentante na rede residual.
      *
-     * @param fonte      O vértice fonte.
-     * @param sumidouro  O vértice sumidouro.
-     * @param capacidade Capacidade de fluxo entre os vértices.
-     * @param fluxo      O fluxo atual na rede.
+     * @param fonte
+     *            O vértice fonte.
+     * @param sumidouro
+     *            O vértice sumidouro.
+     * @param capacidade
+     *            Capacidade de fluxo entre os vértices.
+     * @param fluxo
+     *            O fluxo atual na rede.
      * @return Uma lista de vértices representando um caminho aumentante, ou null se
      *         não houver caminho.
      */

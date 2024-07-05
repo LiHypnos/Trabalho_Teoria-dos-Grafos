@@ -8,9 +8,11 @@ public class LeituraEscrita {
   /**
    * Lê um grafo de um arquivo e cria um objeto Grafo.
    *
-   * @param arquivo Caminho do arquivo que contém o grafo.
+   * @param arquivo
+   *          Caminho do arquivo que contém o grafo.
    * @return Um objeto Grafo com vértices e arestas lidos do arquivo.
-   * @throws IOException Se ocorrer um erro ao ler o arquivo.
+   * @throws IOException
+   *           Se ocorrer um erro ao ler o arquivo.
    */
   public static Grafo lerGrafo(String arquivo) throws IOException {
     BufferedReader reader = new BufferedReader(new FileReader(arquivo));
