@@ -34,7 +34,7 @@ public class Menu {
                     System.out.println("Opção inválida");
                     break;
             }
-            System.out.println("Escolha uma opção:\n1 - Verificar\n2 - Listar\n3 - Gerar\n4 - Sair");
+            System.out.println("\nEscolha uma opção:\n1 - Verificar\n2 - Listar\n3 - Gerar\n4 - Sair");
             opcao = scanner.nextLine();
         }
         System.out.println("Saindo...");
