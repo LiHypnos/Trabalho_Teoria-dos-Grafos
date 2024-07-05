@@ -47,8 +47,7 @@ public class Menu {
                         " e. Euleriano\r\n" + //
                         " f. Hamiltoniano\r\n" + //
                         " g. Cíclico\r\n" + //
-                        " h. Planar\r\n" + //
-                        "");
+                        " h. Planar");
         String opcao = scanner.nextLine();
         switch (opcao) {
             case "a":
@@ -147,7 +146,7 @@ public class Menu {
                         " f. Ordem topológia\r\n" + //
                         " g. Caminho mínimo entre dois vértices\r\n" + //
                         " h. Fluxo máximo\r\n" + //
-                        " i. Fechamento transitivo\r\n");
+                        " i. Fechamento transitivo");
         String opcao = scanner.nextLine();
         switch (opcao) {
             case "a":
