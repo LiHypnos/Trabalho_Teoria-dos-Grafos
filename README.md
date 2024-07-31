@@ -34,11 +34,15 @@ O padrão de leitura do grafo informa a quantidade de arestas e vértices, no en
 
 ### Especificações do arquivo de input do grafo
 
-O grafo a ser analizado estará em um arquivo .txt, e deve ser representado como no exemplo a baixo, seguindo as regras de chaves ‘{‘ ‘}’ para representar o conjunto, e finalizar com ponto e virgula ‘;’. Exemplo:
+Como especificado no enunciado:
 
-![exemplo de input em formato .txt](.github/exemplo-input-txt.png)
+```txt
+n_vertices n_arestas
+direcionado ou nao_direcionado
+id_aresta u v peso
+```
 
-O arquivo a ser lido (com um exemplo pré-definido) é o [`grafo.txt`](./grafo.txt) na raiz do projeto
+Um exemplo de arquivo de input pode ser visto no arquivo `grafo.txt` na raiz do projeto.
 
 ### Rodando o projeto
 
