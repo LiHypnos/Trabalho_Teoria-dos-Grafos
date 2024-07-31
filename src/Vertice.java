@@ -1,29 +1,19 @@
-import java.util.ArrayList;
 import java.util.Objects;
 
 class Vertice {
-  public String valor;
-  public ArrayList<Vertice> adjacencia;
+  public final String id;
 
-  public Vertice(String valor) {
-    this.valor = valor;
-    this.adjacencia = new ArrayList<>();
+  public Vertice(String id) {
+    this.id = id;
+  }
+
+  public String getId() {
+    return id;
   }
 
   @Override
   public String toString() {
-    return valor;
-  }
-
-  public String getListaDeAdjacencia() {
-    String res = this.toString();
-
-    for (Vertice v : this.adjacencia) {
-      res += " -> " + v.toString();
-    }
-    res += ";";
-
-    return res;
+    return getId();
   }
 
   @Override
@@ -35,11 +25,11 @@ class Vertice {
       return false;
     }
     Vertice vertice = (Vertice) o;
-    return Objects.equals(valor, vertice.valor);
+    return Objects.equals(id, vertice.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(valor);
+    return Objects.hash(id);
   }
 }

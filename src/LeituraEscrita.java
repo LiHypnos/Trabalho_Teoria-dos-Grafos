@@ -1,8 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class LeituraEscrita {
   /**
@@ -15,46 +13,42 @@ public class LeituraEscrita {
    *           Se ocorrer um erro ao ler o arquivo.
    */
   public static Grafo lerGrafo(String arquivo) throws IOException {
-    BufferedReader reader = new BufferedReader(new FileReader(arquivo));
-    StringBuilder conteudo = new StringBuilder();
-    String linha;
+    BufferedReader br = new BufferedReader(new FileReader(arquivo));
+    String linha = br.readLine();
+    String[] partes = linha.split(" ");
+    int nVertices = Integer.parseInt(partes[0]);
+    int nArestas = Integer.parseInt(partes[1]);
 
-    while ((linha = reader.readLine()) != null) {
-      conteudo.append(linha);
-    }
-    reader.close();
+    linha = br.readLine();
+    boolean naoDirecionado = linha.equals("nao_direcionado");
 
-    // Removendo espaços
-    String conteudoStr = conteudo.toString().replace(" ", "");
+    Grafo grafo = new Grafo(naoDirecionado);
 
-    // Encontrando os vértices
-    int inicioVertices = conteudoStr.indexOf('{') + 1;
-    int fimVertices = conteudoStr.indexOf('}');
-    String[] verticesArray = conteudoStr.substring(inicioVertices, fimVertices).split(",");
-    HashMap<String, Vertice> vertices = new HashMap<>();
-    for (String vertice : verticesArray) {
-      vertices.put(vertice, new Vertice(vertice));
-    }
+    for (int i = 0; i < nArestas; i++) {
+      linha = br.readLine();
+      partes = linha.split(" ");
+      int idAresta = Integer.parseInt(partes[0]);
+      String u = partes[1];
+      String v = partes[2];
+      int peso = Integer.parseInt(partes[3]);
 
-    // Encontrando as arestas
-    int inicioArestas = conteudoStr.indexOf('{', fimVertices) + 1;
-    int fimArestas = conteudoStr.indexOf('}', inicioArestas);
-    String[] arestasArray = conteudoStr.substring(inicioArestas, fimArestas).split("\\),\\(");
+      Vertice verticeU = new Vertice(u);
+      Vertice verticeV = new Vertice(v);
+      Aresta aresta = new Aresta(idAresta, verticeU, verticeV, peso);
 
-    ArrayList<Aresta> arestas = new ArrayList<>();
-    for (String arestaStr : arestasArray) {
-      arestaStr = arestaStr.replace("(", "").replace(")", "");
-      String[] partes = arestaStr.split(",");
-      Vertice u = vertices.get(partes[0]);
-      Vertice v = vertices.get(partes[1]);
+      /*
+       * atualmente, como nao temos vertices soltos,
+       * o metodo adicionarAresta tambem adiciona os vertices
+       * caso nao estejam presentes na propriedade vertices do grafo
+       */
+      grafo.adicionarAresta(aresta);
 
-      u.adjacencia.add(v);
-
-      int peso = (partes.length == 3) ? Integer.parseInt(partes[2]) : 1;
-
-      arestas.add(new Aresta(u, v, peso));
+      if (naoDirecionado) {
+        grafo.adicionarAresta(new Aresta(idAresta, verticeV, verticeU, peso));
+      }
     }
 
-    return new Grafo(vertices, arestas);
+    br.close();
+    return grafo;
   }
 }

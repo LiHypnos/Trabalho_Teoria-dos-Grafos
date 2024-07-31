@@ -19,16 +19,11 @@
 
 ## Decisões tomadas
 
-### Input: Grafo ponderado ou não, Grafo direcionado ou não
+Os arquivo `.txt` é lido em `LeituraEscrita.java` e os vértices e arestas são armazenados em `Grafo.java`, assim como a adjacência dos vértices, na propriedade `listaAdjacencia`.
 
-Como precisavamos que o grafo pudesse ser ponderado ou não, direcionado ou não e isso depende do arquivo `.txt.` de input, resolvemos receber o grafo da mesma forma, não importanto cada uma destas característas, e lidar com estas características conforme necessário.
+## Dúvidas
 
-Por exemplo, se o grafo não é ponderado (não possui peso nas arestas), atribuímos um valor `1`.
-
-Portanto, para sabermos se o grafo é:
-
-- Ponderado: temos o método `isPonderado` que verifica se existe pelo menos uma aresta que não possui peso 1
-- Direcionado: termos o método `isDirecionado`, onde se houver pelo menos uma aresta que não tem a sua inversa, retorna true
+O padrão de leitura do grafo informa a quantidade de arestas e vértices, no entanto, os vértices são lidos somente a quantidade de arestas, visto a forma `id_aresta u v peso` informada. Existe alguma forma de receber input de vértices sem as arestas? Se sim, como?
 
 ## Como rodar
 
